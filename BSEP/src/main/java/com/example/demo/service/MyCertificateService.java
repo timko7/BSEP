@@ -29,4 +29,11 @@ public interface MyCertificateService {
     void skiniCa(String uid) throws FileNotFoundException, DocumentException;
 
     void skiniEE(String uid) throws FileNotFoundException, DocumentException;
+
+    void povuciCertificateCA(String uid);
+
+    void povuciCertificateEE(String uid);
+
+    ArrayList<CertificateDAO> vratiSvePovucene() throws NoSuchProviderException, KeyStoreException;
+
 }

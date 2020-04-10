@@ -84,4 +84,29 @@ public class CertificateContoller {
         certificateService.skiniEE(uid);
         return new ResponseEntity<>( HttpStatus.OK);
     }
+
+    @RequestMapping(method = GET, value = "/povuciCA/{uid}")
+    public ResponseEntity<?> povuciSertCA(@PathVariable("uid") String uid) throws Exception {
+
+        certificateService.povuciCertificateCA(uid);
+        return new ResponseEntity<>( HttpStatus.OK);
+    }
+
+    @RequestMapping(method = GET, value = "/povuciEE/{uid}")
+    public ResponseEntity<?> povuciSertEE(@PathVariable("uid") String uid) throws Exception {
+
+        certificateService.povuciCertificateEE(uid);
+        return new ResponseEntity<>( HttpStatus.OK);
+    }
+
+    @RequestMapping(method = GET, value = "/sviPovuceniSertifikati")
+    public ResponseEntity<?> sviPovuceniSertifikati() throws Exception {
+
+        ArrayList<CertificateDAO> sertifikati=new ArrayList<>();
+        sertifikati = certificateService.vratiSvePovucene();
+        return new ResponseEntity<>(sertifikati, HttpStatus.CREATED);
+    }
+
+
+
 }
