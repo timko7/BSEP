@@ -4,28 +4,20 @@ import com.example.demo.model.*;
 import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.AliasCARepository;
 import com.example.demo.repository.AliasEERepository;
+import com.example.demo.repository.PovuceniReposiitory;
 import com.itextpdf.text.DocumentException;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.security.auth.x500.X500Principal;
 import java.io.*;
 import java.security.*;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -44,6 +36,9 @@ public class MyCertificateServiceImp implements MyCertificateService {
 
     @Autowired
     private AliasEERepository aliasEERepository;
+
+    @Autowired
+    private PovuceniReposiitory povuceniReposiitory;
 
     @Override
     public Collection<MyCertificate> findAll() {
@@ -405,4 +400,121 @@ public class MyCertificateServiceImp implements MyCertificateService {
 		});*/
         return certificates;
     }
+
+    @Override
+    public void povuciCertificateCA(String uid) {
+
+        KeyStoreReader ksr=new KeyStoreReader();
+        X509Certificate cer=ksr.readCertificate("keyStoreCA.jks","123","CA"+uid);
+
+        PovuceniAliasi povuceni = new PovuceniAliasi("CA" + uid);
+        povuceniReposiitory.save(povuceni);
+
+        aliasCARepository.delete(aliasCARepository.findByAlias("CA" + uid));
+    }
+
+
+    @Override
+    public void povuciCertificateEE(String uid) {
+
+        KeyStoreReader ksr=new KeyStoreReader();
+        X509Certificate cer=ksr.readCertificate("keyStoreEE.jks","123","EE"+uid);
+
+        PovuceniAliasi povuceni = new PovuceniAliasi("EE" + uid);
+        povuceniReposiitory.save(povuceni);
+
+        aliasEERepository.delete(aliasEERepository.findByAlias("EE" + uid));
+    }
+
+    @Override
+    public ArrayList<CertificateDAO> vratiSvePovucene() throws NoSuchProviderException, KeyStoreException {
+        System.out.println("udjoh");
+        ArrayList<CertificateDAO> allCertificates = new ArrayList<CertificateDAO>();
+
+        readAllPovuceneCACertificates("keyStoreCA.jks","123").forEach(certif -> {
+            try {
+                allCertificates.add(new CertificateDAO(certif));
+            } catch (CertificateEncodingException e) {
+                e.printStackTrace();
+            }
+        });
+
+        readAllPovuceneEECertificates("keyStoreEE.jks","123").forEach(certif -> {
+            try {
+                allCertificates.add(new CertificateDAO(certif));
+            } catch (CertificateEncodingException e) {
+                e.printStackTrace();
+            }
+        });
+        return allCertificates;
+    }
+
+    public List<X509Certificate> readAllPovuceneCACertificates(String file, String password) throws KeyStoreException, NoSuchProviderException {
+        KeyStoreReader ksr = new KeyStoreReader();
+        keyStore = KeyStore.getInstance("JKS", "SUN");
+
+        List<X509Certificate> certificates = new ArrayList<>();
+
+        List<PovuceniAliasi> povuceniAliasis = povuceniReposiitory.findAll();
+        List<String> povuceniAliasiCA = new ArrayList<>();
+
+        for (PovuceniAliasi povuceniAliasi : povuceniAliasis) {
+            if (povuceniAliasi.getAlias().contains("CA")) {
+                povuceniAliasiCA.add(povuceniAliasi.getAlias());
+            }
+        }
+
+        try {
+            keyStore.load(new FileInputStream(file),password.toCharArray());
+            //<String> aliasi =aliasiImena;//NEMOJ DA ZABORVIS DA POZOVES AUT
+            for (String ime : povuceniAliasiCA)
+            {
+                certificates.add(ksr.readCertificate(file,"123", ime));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+		/*certificates.forEach(c-> {
+			System.out.println(c.getSerialNumber());
+		});*/
+        return certificates;
+    }
+
+
+    public List<X509Certificate> readAllPovuceneEECertificates(String file, String password) throws KeyStoreException, NoSuchProviderException {
+        KeyStoreReader ksr=new KeyStoreReader();
+        keyStore = KeyStore.getInstance("JKS", "SUN");
+
+        List<X509Certificate> certificates = new ArrayList<>();
+
+        List<PovuceniAliasi> povuceniAliasis = povuceniReposiitory.findAll();
+        List<String> povuceniAliasiEE = new ArrayList<>();
+
+        for (PovuceniAliasi povuceniAliasi : povuceniAliasis) {
+            if (povuceniAliasi.getAlias().contains("EE")) {
+                povuceniAliasiEE.add(povuceniAliasi.getAlias());
+            }
+        }
+
+        try {
+            keyStore.load(new FileInputStream(file),password.toCharArray());
+            //<String> aliasi =aliasiImena;//NEMOJ DA ZABORVIS DA POZOVES AUT
+
+            for (String ime : povuceniAliasiEE)
+            {
+                certificates.add(ksr.readCertificate(file,"123", ime));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+		/*certificates.forEach(c-> {
+			System.out.println(c.getSerialNumber());
+		});*/
+        return certificates;
+    }
+
+
+
+
+
 }
