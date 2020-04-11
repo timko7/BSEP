@@ -12,14 +12,19 @@ public class AliasCA {
     @Column(name = "Alias", nullable = false)
     private String alias;
 
+    @Column(name = "AliasIssuer", nullable = false)
+    private String aliasIssuer;
 
-    public AliasCA(Long id, String alias) {
+    public AliasCA(Long id, String alias,String aliasIssuer) {
         this.id = id;
         this.alias = alias;
+        this.aliasIssuer=aliasIssuer;
     }
 
-    public AliasCA(String alias) {
+    public AliasCA(String alias,String aliasIssuer) {
+
         this.alias = alias;
+        this.aliasIssuer=aliasIssuer;
     }
 
     public Long getId() {
@@ -36,6 +41,14 @@ public class AliasCA {
 
     public void setAlias(String alias) {
         this.alias = alias;
+    }
+
+    public String getAliasIssuer() {
+        return aliasIssuer;
+    }
+
+    public void setAliasIssuer(String aliasIssuer) {
+        this.aliasIssuer = aliasIssuer;
     }
 
     public AliasCA() {
