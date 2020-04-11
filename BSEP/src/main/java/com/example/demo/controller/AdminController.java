@@ -16,7 +16,6 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
-
     @Autowired
     private AdminService adminKlinikeService;
 
