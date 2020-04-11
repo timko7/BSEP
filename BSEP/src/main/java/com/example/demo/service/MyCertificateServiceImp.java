@@ -91,9 +91,9 @@ public class MyCertificateServiceImp implements MyCertificateService {
         ksw.saveKeyStore(ksfZaUpisSertifikata, pass);
 
         if(certificateDAO.getExtensionString().contains("CA")){
-             aliasCARepository.save(new AliasCA(aliasPrefix + certificateDAO.getUID()));
+             aliasCARepository.save(new AliasCA(aliasPrefix + certificateDAO.getUID(),certificateDAO.getIssuer()));
         } else {
-             aliasEERepository.save(new AliasEE(aliasPrefix + certificateDAO.getUID()));
+             aliasEERepository.save(new AliasEE(aliasPrefix + certificateDAO.getUID(),certificateDAO.getIssuer()));
         }
 
         //otvaranje i cuvanje privatno kljuca keystore za ca
@@ -403,7 +403,6 @@ public class MyCertificateServiceImp implements MyCertificateService {
 
     @Override
     public void povuciCertificateCA(String uid) {
-
         KeyStoreReader ksr=new KeyStoreReader();
         X509Certificate cer=ksr.readCertificate("keyStoreCA.jks","123","CA"+uid);
 
@@ -411,6 +410,8 @@ public class MyCertificateServiceImp implements MyCertificateService {
         povuceniReposiitory.save(povuceni);
 
         aliasCARepository.delete(aliasCARepository.findByAlias("CA" + uid));
+        rekurzivnoPovlacenjeCer("CA"+uid,uid);
+
     }
 
 
@@ -426,6 +427,34 @@ public class MyCertificateServiceImp implements MyCertificateService {
         aliasEERepository.delete(aliasEERepository.findByAlias("EE" + uid));
     }
 
+    public void rekurzivnoPovlacenjeCer(String CA,String uid){
+        ArrayList<AliasEE>podredjeniEE=aliasEERepository.findByAliasIssuer(CA);
+
+        if(!podredjeniEE.isEmpty()){
+            for (AliasEE ee:podredjeniEE) {
+                String uidStr=ee.getAlias().replace("EE","");
+                povuciCertificateEE(uidStr);
+
+            }
+
+        }
+        ArrayList<AliasCA>podredjeniCA=aliasCARepository.findByAliasIssuer(CA);
+
+        if(!podredjeniCA.isEmpty()){
+            for (AliasCA ca:podredjeniCA) {
+                String uidStr=ca.getAlias().replace("CA","");
+                KeyStoreReader ksr=new KeyStoreReader();
+                X509Certificate cer=ksr.readCertificate("keyStoreCA.jks","123","CA"+uidStr);
+
+                PovuceniAliasi povuceni = new PovuceniAliasi("CA" + uidStr);
+                povuceniReposiitory.save(povuceni);
+
+                aliasCARepository.delete(aliasCARepository.findByAlias("CA" + uidStr));
+                rekurzivnoPovlacenjeCer(ca.getAlias(),uidStr);
+            }
+        }
+
+    }
     @Override
     public ArrayList<CertificateDAO> vratiSvePovucene() throws NoSuchProviderException, KeyStoreException {
         System.out.println("udjoh");

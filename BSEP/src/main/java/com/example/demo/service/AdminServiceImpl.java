@@ -89,7 +89,7 @@ public class AdminServiceImpl implements AdminService {
 
 
         //cuvanje spiska aliasa u bazi
-        aliasCARepository.save(new AliasCA("CARoot"));
+        aliasCARepository.save(new AliasCA("CARoot","CARoot"));
 
         //citanje i ispis kreiranog sertifikata na kozolu
         KeyStoreReader ksr=new KeyStoreReader();
