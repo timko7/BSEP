@@ -18,10 +18,7 @@ import java.security.*;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class MyCertificateServiceImp implements MyCertificateService {
@@ -207,17 +204,6 @@ public class MyCertificateServiceImp implements MyCertificateService {
 
     private SubjectData generateSubjectData(CertificateDAO dao,KeyPair keyPairSubject) {
 
-        //System.out.println(dao.getUID());
-       // System.out.println(dao.getCn());
-        //System.out.println(dao.getC());
-       // System.out.println(dao.getIssuer());
-        //System.out.println(dao.getNotAfter());
-
-        //Datumi od kad do kad vazi sertifikat
-        //  SimpleDateFormat iso8601Formater = new SimpleDateFormat("yyyy-MM-dd");
-        //Date startDate = iso8601Formater.parse(dao.getNotBefore().toString());
-        //Date endDate = iso8601Formater.parse(dao.getNotAfter().toString());
-
         Date startDate = dao.getNotBefore();
         Date endDate = dao.getNotAfter();
 
@@ -280,6 +266,27 @@ public class MyCertificateServiceImp implements MyCertificateService {
         List<String> imenaAliasa=new ArrayList<>();
         for (AliasCA a:
              aliasi) {
+            imenaAliasa.add(a.getAlias());
+        }
+        return imenaAliasa;
+    }
+
+    @Override
+    public List<String> naziviEESertifikata() {
+        List<AliasEE> aliasi=aliasEERepository.findAll();
+        List<String> imenaAliasa=new ArrayList<>();
+        for (AliasEE a:
+                aliasi) {
+            imenaAliasa.add(a.getAlias());
+        }
+        return imenaAliasa;
+    }
+    @Override
+    public List<String> naziviPovucenihSertifikata() {
+        List<PovuceniAliasi> aliasi=povuceniReposiitory.findAll();
+        List<String> imenaAliasa=new ArrayList<>();
+        for (PovuceniAliasi a:
+                aliasi) {
             imenaAliasa.add(a.getAlias());
         }
         return imenaAliasa;
@@ -428,7 +435,7 @@ public class MyCertificateServiceImp implements MyCertificateService {
     }
 
     public void rekurzivnoPovlacenjeCer(String CA,String uid){
-        ArrayList<AliasEE>podredjeniEE=aliasEERepository.findByAliasIssuer(CA);
+        ArrayList<AliasEE> podredjeniEE = aliasEERepository.findByAliasIssuer(CA);
 
         if(!podredjeniEE.isEmpty()){
             for (AliasEE ee:podredjeniEE) {
@@ -455,6 +462,8 @@ public class MyCertificateServiceImp implements MyCertificateService {
         }
 
     }
+
+
     @Override
     public ArrayList<CertificateDAO> vratiSvePovucene() throws NoSuchProviderException, KeyStoreException {
         System.out.println("udjoh");
@@ -477,6 +486,8 @@ public class MyCertificateServiceImp implements MyCertificateService {
         });
         return allCertificates;
     }
+
+
 
     public List<X509Certificate> readAllPovuceneCACertificates(String file, String password) throws KeyStoreException, NoSuchProviderException {
         KeyStoreReader ksr = new KeyStoreReader();
@@ -542,8 +553,74 @@ public class MyCertificateServiceImp implements MyCertificateService {
         return certificates;
     }
 
+    //metoda za proveru validacije CA sertifikata
+    @Override
+    public boolean validacijaCA(String uid) {
+        //da li je u listi povucenih aliasa?
+        List<PovuceniAliasi> povuceniCA = povuceniReposiitory.findAll();
 
+        for (PovuceniAliasi ca : povuceniCA) {
+            if(ca.getAlias().contentEquals("CA"+uid)) {
+                return false;
+            }
+        }
 
+        //da li je datum validan?
+        KeyStoreReader ksr = new KeyStoreReader();
+        X509Certificate cert = ksr.readCertificate("keyStoreCA.jks","123","CA"+uid);
+        Date certNotBefore = cert.getNotBefore();
+        Date certNotAfter = cert.getNotAfter();
+        Date today = Calendar.getInstance().getTime();
 
+        if ( !(today.after(certNotBefore) && today.before(certNotAfter)) ){
+
+            return false;
+        }
+
+        return true;
+    }
+
+    //metoda za proveru validacije EE sertifikata
+    @Override
+    public boolean validacijaEE(String uid) {
+
+        //da li je u listi povucenih aliasa?
+        List<PovuceniAliasi> povuceniEE = povuceniReposiitory.findAll();
+
+        for (PovuceniAliasi ee : povuceniEE) {
+            if(ee.getAlias().contentEquals("EE"+uid)) {
+                return false;
+            }
+        }
+
+        //da li je datum validan?
+        KeyStoreReader ksr = new KeyStoreReader();
+        X509Certificate cert = ksr.readCertificate("keyStoreEE.jks","123","EE"+uid);
+        Date certNotBefore = cert.getNotBefore();
+        Date certNotAfter = cert.getNotAfter();
+        Date today = Calendar.getInstance().getTime();
+
+        if ( !(today.after(certNotBefore) && today.before(certNotAfter)) ){
+
+            return false;
+        }
+
+        return true;
+    }
+
+    //metoda za proveru validacije svih sertifikata
+
+    @Override
+    public boolean validacijaSvi(String izabraniAliasSvi) {
+        if(izabraniAliasSvi.contains("CA")){
+            String uid = izabraniAliasSvi.replace("CA","");
+            return validacijaCA(uid);
+        } else if(izabraniAliasSvi.contains("EE")){
+            String uid = izabraniAliasSvi.replace("EE","");
+            return validacijaEE(uid);
+        }
+
+        return false;
+    }
 
 }

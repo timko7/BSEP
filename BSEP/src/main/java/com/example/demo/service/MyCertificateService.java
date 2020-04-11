@@ -23,6 +23,8 @@ public interface MyCertificateService {
     MyCertificate revoke(MyCertificate certificate) throws Exception;
     void addToKeyStore(MyCertificate certificate,String keyStoreFile)throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException;
     List<String> naziviSertifikata();
+    List<String> naziviEESertifikata();
+    List<String> naziviPovucenihSertifikata();
     ArrayList<CertificateDAO>vratiSveCA()throws KeyStoreException, NoSuchProviderException;
     ArrayList<CertificateDAO>vratiSveEE()throws KeyStoreException, NoSuchProviderException;
 
@@ -35,5 +37,9 @@ public interface MyCertificateService {
     void povuciCertificateEE(String uid);
 
     ArrayList<CertificateDAO> vratiSvePovucene() throws NoSuchProviderException, KeyStoreException;
+
+    boolean validacijaCA(String uid);
+    boolean validacijaEE(String uid);
+    public boolean validacijaSvi(String izabraniAliasSvi);
 
 }

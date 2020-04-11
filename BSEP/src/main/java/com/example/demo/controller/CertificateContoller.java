@@ -30,11 +30,7 @@ public class CertificateContoller {
 
         System.out.println("pre ulaska: "+certificate.toString());
         boolean povratna=certificateService.createCA(certificate);
-        //TODO: ako je moguce da se vrati ovaj boolean na front? i ako je false da se ispise da datum mora biti u skladu sa izabranim issuerom
-        //TODO: ako se vrati true onda da se refresuje stranica da moze novi sertifikat da se doda (da bi se u combobox ispisao i novi ca)
-        //TODO: da se doda ispod forme tabela sa opisom mogucih ekstenzija
         //TODO: uid ako moze validacija da budu brojevi (a jedinstvenost po bazi?)
-        //TODO: ako moze za datume validacija da mora drugi da bude veci od prvog
 
         return new ResponseEntity<>( povratna,HttpStatus.CREATED);
     }
@@ -53,6 +49,30 @@ public class CertificateContoller {
 
         List<String> imena=new ArrayList<>();
         imena=certificateService.naziviSertifikata();
+        return new ResponseEntity<>(imena, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(method = GET, value = "/aliasiEE")
+    public ResponseEntity<?> vratiAliaseEE() throws Exception {
+
+        List<String> imena=new ArrayList<>();
+        imena=certificateService.naziviEESertifikata();
+
+
+        return new ResponseEntity<>(imena, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(method = GET, value = "/aliasiSvi")
+    public ResponseEntity<?> vratiAliaseSve() throws Exception {
+
+        List<String> imena=new ArrayList<>();
+        List<String> imena1=certificateService.naziviSertifikata(); //ca
+        List<String> imena2=certificateService.naziviEESertifikata();
+        List<String> imena3=certificateService.naziviPovucenihSertifikata(); //povuceni
+        imena.addAll(imena1);
+        imena.addAll(imena2);
+        imena.addAll(imena3);
+
         return new ResponseEntity<>(imena, HttpStatus.CREATED);
     }
 
@@ -108,5 +128,24 @@ public class CertificateContoller {
     }
 
 
+
+    @RequestMapping(method = GET, value = "/validacijaCA/{izabraniAliasCA}")
+    public ResponseEntity<?> validacijaCA(@PathVariable("izabraniAliasCA") String izabraniAliasCA) throws Exception {
+        String uid = izabraniAliasCA.replace("CA","");
+        boolean ret = certificateService.validacijaCA(uid);
+        return new ResponseEntity<>( ret, HttpStatus.OK);
+    }
+    @RequestMapping(method = GET, value = "/validacijaEE/{izabraniAliasEE}")
+    public ResponseEntity<?> validacijaEE(@PathVariable("izabraniAliasEE") String izabraniAliasEE) throws Exception {
+        String uid = izabraniAliasEEs.replace("EE","");
+        boolean ret = certificateService.validacijaEE(uid);
+        return new ResponseEntity<>(ret, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = GET, value = "/validacijaSvi/{izabraniAliasSvi}")
+    public ResponseEntity<?> validacijaSvi(@PathVariable("izabraniAliasSvi") String izabraniAliasSvi) throws Exception {
+        boolean ret = certificateService.validacijaSvi(izabraniAliasSvi);
+        return new ResponseEntity<>(ret, HttpStatus.OK);
+    }
 
 }
