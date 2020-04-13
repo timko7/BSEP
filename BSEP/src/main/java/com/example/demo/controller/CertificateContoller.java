@@ -137,7 +137,7 @@ public class CertificateContoller {
     }
     @RequestMapping(method = GET, value = "/validacijaEE/{izabraniAliasEE}")
     public ResponseEntity<?> validacijaEE(@PathVariable("izabraniAliasEE") String izabraniAliasEE) throws Exception {
-        String uid = izabraniAliasEEs.replace("EE","");
+        String uid = izabraniAliasEE.replace("EE","");
         boolean ret = certificateService.validacijaEE(uid);
         return new ResponseEntity<>(ret, HttpStatus.OK);
     }
