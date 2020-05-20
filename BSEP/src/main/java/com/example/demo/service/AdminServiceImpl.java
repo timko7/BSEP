@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -126,7 +127,7 @@ public class AdminServiceImpl implements AdminService {
 
     }
 
-    private X509Certificate napraviRoot(KeyPair keyPair) throws NoSuchProviderException, CertificateException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, FileNotFoundException, DocumentException {
+    private X509Certificate napraviRoot(KeyPair keyPair) throws NoSuchProviderException, CertificateException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException, DocumentException {
         // u slucaju roota ce se sopstveni privatni kljuc koristiti za potpisivanje
 
         // kreiranje podataka o subjektu

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,9 +29,9 @@ public interface MyCertificateService {
     ArrayList<CertificateDAO>vratiSveCA()throws KeyStoreException, NoSuchProviderException;
     ArrayList<CertificateDAO>vratiSveEE()throws KeyStoreException, NoSuchProviderException;
 
-    void skiniCa(String uid) throws FileNotFoundException, DocumentException;
+    void skiniCa(String uid) throws IOException, DocumentException, CertificateEncodingException;
 
-    void skiniEE(String uid) throws FileNotFoundException, DocumentException;
+    void skiniEE(String uid) throws IOException, DocumentException, CertificateEncodingException;
 
     void povuciCertificateCA(String uid);
 
