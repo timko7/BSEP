@@ -328,7 +328,7 @@ public class MyCertificateServiceImp implements MyCertificateService {
     }
 
     @Override
-    public void skiniCa(String uid) throws FileNotFoundException, DocumentException {
+    public void skiniCa(String uid) throws IOException, DocumentException, CertificateEncodingException {
         KeyStoreReader ksr=new KeyStoreReader();
         X509Certificate cer=ksr.readCertificate("keyStoreCA.jks","123","CA"+uid);
         PDFGenerator pdfGenerator=new PDFGenerator();
@@ -337,7 +337,7 @@ public class MyCertificateServiceImp implements MyCertificateService {
     }
 
     @Override
-    public void skiniEE(String uid) throws FileNotFoundException, DocumentException {
+    public void skiniEE(String uid) throws IOException, DocumentException, CertificateEncodingException {
         KeyStoreReader ksr=new KeyStoreReader();
         X509Certificate cer=ksr.readCertificate("keyStoreEE.jks","123","EE"+uid);
         PDFGenerator pdfGenerator=new PDFGenerator();
