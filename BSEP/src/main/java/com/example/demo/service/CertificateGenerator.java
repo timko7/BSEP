@@ -50,23 +50,40 @@ public class CertificateGenerator {
 
             //Dodavanje ekstenzija
 
-
-            //NECEEEEEEEEEEEE ignorise MEEEEEEEEEEEE!!!!!
-            //Vise me ne ignorise, ne znam zasto
-
-            //
-            if (extension.contains("CA")) {
+            if (extension.equals("CA - Certificate Authority")) {
                 certGen.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
                 certGen.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.nonRepudiation | KeyUsage.keyCertSign | KeyUsage.cRLSign));
-            } else  { //ako nije ca
-                certGen.addExtension(Extension.basicConstraints, true, new BasicConstraints(false));
-                if (extension.contains("signing")) { // document signing
-                    certGen.addExtension(Extension.keyUsage, true, new KeyUsage(  KeyUsage.nonRepudiation | KeyUsage.digitalSignature));
-                } else if (extension.contains("encipherment")) { // data and key encription
-                    certGen.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.keyEncipherment | KeyUsage.dataEncipherment | KeyUsage.keyAgreement |
-                            KeyUsage.nonRepudiation));
-                }
             }
+            if (extension.equals("CA, Document signing")) {
+                certGen.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
+                certGen.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.nonRepudiation | KeyUsage.keyCertSign | KeyUsage.cRLSign  | KeyUsage.digitalSignature));
+            }
+            if (extension.equals("CA, Data and key encipherment")) {
+                certGen.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
+                certGen.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.nonRepudiation | KeyUsage.keyCertSign | KeyUsage.cRLSign | KeyUsage.keyEncipherment | KeyUsage.dataEncipherment | KeyUsage.keyAgreement ));
+            }
+            if (extension.equals("CA, Document signing, Data and key encipherment")) {
+                certGen.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
+                certGen.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.nonRepudiation | KeyUsage.keyCertSign | KeyUsage.cRLSign | KeyUsage.keyEncipherment | KeyUsage.dataEncipherment | KeyUsage.keyAgreement | KeyUsage.digitalSignature));
+            }
+
+            if (extension.equals("Document signing")) {
+                certGen.addExtension(Extension.basicConstraints, false, new BasicConstraints(true));
+                certGen.addExtension(Extension.keyUsage, true, new KeyUsage(  KeyUsage.nonRepudiation | KeyUsage.digitalSignature));
+            }
+
+            if (extension.equals("Data and key encipherment")) {
+                certGen.addExtension(Extension.basicConstraints, false, new BasicConstraints(true));
+                certGen.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.keyEncipherment | KeyUsage.dataEncipherment | KeyUsage.keyAgreement |
+                        KeyUsage.nonRepudiation));
+                }
+
+            if (extension.equals("Document signing, Data and key encipherment")) {
+                certGen.addExtension(Extension.basicConstraints, false, new BasicConstraints(true));
+
+                certGen.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.keyEncipherment | KeyUsage.dataEncipherment | KeyUsage.keyAgreement |
+                        KeyUsage.nonRepudiation | KeyUsage.digitalSignature));
+                  }
 
 
             //Generise se sertifikat
