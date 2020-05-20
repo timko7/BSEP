@@ -165,6 +165,7 @@ public class MyCertificateServiceImp implements MyCertificateService {
 
         // Moguce je proveriti da li je digitalan potpis sertifikata ispravan, upotrebom javnog kljuca izdavaoca
         cert.verify(issuer.getPublicKey());
+
         System.out.println("\nValidacija uspesna :)");
 
 
@@ -173,7 +174,7 @@ public class MyCertificateServiceImp implements MyCertificateService {
 
     }
 
-    //pretraga i iscitavanje  sertifikata na osnovu aliasa
+    //pretraga i iscitavanje CA sertifikata na osnovu aliasa
     public X509Certificate searchByAlias(String alias){
 
         KeyStoreReader ksr=new KeyStoreReader();
@@ -264,9 +265,11 @@ public class MyCertificateServiceImp implements MyCertificateService {
     public List<String> naziviSertifikata() {
         List<AliasCA> aliasi=aliasCARepository.findAll();
         List<String> imenaAliasa=new ArrayList<>();
-        for (AliasCA a:
-             aliasi) {
-            imenaAliasa.add(a.getAlias());
+        for (AliasCA a: aliasi) {
+            String uid = a.getAlias().replace("CA","");
+            //ako je validan dodaj ga u listu
+            if (validacijaCA(uid))
+                imenaAliasa.add(a.getAlias());
         }
         return imenaAliasa;
     }
@@ -572,10 +575,33 @@ public class MyCertificateServiceImp implements MyCertificateService {
         Date certNotAfter = cert.getNotAfter();
         Date today = Calendar.getInstance().getTime();
 
+        //cert.verify(issuer.getPublicKey());
+
+
         if ( !(today.after(certNotBefore) && today.before(certNotAfter)) ){
 
             return false;
         }
+
+
+        AliasCA certCurr = aliasCARepository.findByAlias("CA"+uid);
+        String issuerAlias = certCurr.getAliasIssuer();
+        X509Certificate issuer = searchByAlias(issuerAlias);
+
+        try {
+            cert.verify(issuer.getPublicKey());
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+        } catch (SignatureException e) {
+            e.printStackTrace();
+        }
+
 
         return true;
     }
@@ -600,10 +626,32 @@ public class MyCertificateServiceImp implements MyCertificateService {
         Date certNotAfter = cert.getNotAfter();
         Date today = Calendar.getInstance().getTime();
 
+
+
+
         if ( !(today.after(certNotBefore) && today.before(certNotAfter)) ){
 
             return false;
         }
+
+        AliasEE certEE = aliasEERepository.findByAlias("EE"+uid);
+        String issuerAlias = certEE.getAliasIssuer();
+        X509Certificate issuer = searchByAlias(issuerAlias);
+
+        try {
+            cert.verify(issuer.getPublicKey());
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+        } catch (SignatureException e) {
+            e.printStackTrace();
+        }
+
 
         return true;
     }
@@ -612,6 +660,7 @@ public class MyCertificateServiceImp implements MyCertificateService {
 
     @Override
     public boolean validacijaSvi(String izabraniAliasSvi) {
+
         if(izabraniAliasSvi.contains("CA")){
             String uid = izabraniAliasSvi.replace("CA","");
             return validacijaCA(uid);

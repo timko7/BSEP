@@ -7,6 +7,7 @@ import com.example.demo.model.IssuerData;
 import com.example.demo.model.SubjectData;
 import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.AliasCARepository;
+import com.example.demo.service.*;
 import com.itextpdf.text.DocumentException;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -150,6 +151,7 @@ public class AdminServiceImpl implements AdminService {
 
         //Moguce je proveriti da li je digitalan potpis sertifikata ispravan, upotrebom javnog kljuca izdavaoca
         cert.verify(keyPair.getPublic());
+
         System.out.println("\nValidacija uspesna :)");
 
         PDFGenerator pdfGen = new PDFGenerator();
