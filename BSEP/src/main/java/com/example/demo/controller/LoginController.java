@@ -18,8 +18,7 @@ import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Context;
 import java.util.Collection;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
 @RequestMapping("/api/login")
@@ -38,7 +37,7 @@ public class LoginController {
         Korisnik existKor = korisnikService.findByEmail(korisnikRequest.getEmail());
 
         if (existAdmin != null || existKor != null) {
-            return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+            return new ResponseEntity<>("Email vec postoji u bazi! Pokusajte drugi email.", HttpStatus.METHOD_NOT_ALLOWED);
         }
 
         Korisnik korisnik = korisnikService.create(korisnikRequest);
@@ -93,9 +92,11 @@ public class LoginController {
     }
 
 
-    @RequestMapping(method = POST, value = "/logOut")
+    @RequestMapping(method = PUT, value = "/logOut")
     public ResponseEntity logOut(@Context HttpServletRequest request) {
         HttpSession session = request.getSession();
+        System.out.println("...LOGOUTK... " + session.getAttribute("korisnik"));
+        System.out.println("...LOGOUTA... " + session.getAttribute("admin"));
         session.invalidate();
 
         return ResponseEntity.status(200).build();
