@@ -4,11 +4,14 @@ package com.example.demo.controller;
 import com.example.demo.model.Admin;
 import com.example.demo.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.ws.rs.core.Context;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -18,7 +21,6 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public class AdminController {
     @Autowired
     private AdminService adminKlinikeService;
-
 
 
     @RequestMapping(method = GET, value = "/user/{userId}")
@@ -40,19 +42,33 @@ public class AdminController {
 
 
     @PutMapping(value = "/promeniPodatke/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Admin> promeniPodatkeAdmina(@RequestBody Admin adminKlinike)
+    public ResponseEntity<?> promeniPodatkeAdmina(@Context HttpServletRequest request, @RequestBody Admin adminKlinike)
             throws Exception {
 
-        Admin a = adminKlinikeService.update(adminKlinike);
-        return new ResponseEntity<Admin>(a, HttpStatus.OK);
+        HttpSession session = request.getSession();
+        Admin admin = (Admin) session.getAttribute("admin");
+
+        if (admin == null) {
+            return new ResponseEntity<>("Nedozvoljeno ponasanje!", HttpStatus.FORBIDDEN);
+        } else {
+            Admin a = adminKlinikeService.update(adminKlinike);
+            return new ResponseEntity<Admin>(a, HttpStatus.OK);
+        }
     }
 
     /*
      * url: /api/adminiKlinike/obrisi/{email}
      */
     @DeleteMapping(value = "/obrisi/{email}")
-    public ResponseEntity<Admin> izbrisiAdminKlinike(@PathVariable("email") String email) {
-        adminKlinikeService.deleteByEmail(email);
-        return new ResponseEntity<Admin>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<?> izbrisiAdminKlinike(@Context HttpServletRequest request, @PathVariable("email") String email) {
+        HttpSession session = request.getSession();
+        Admin admin = (Admin) session.getAttribute("admin");
+
+        if (admin == null) {
+            return new ResponseEntity<>("Nedozvoljeno ponasanje!", HttpStatus.FORBIDDEN);
+        } else {
+            adminKlinikeService.deleteByEmail(email);
+            return new ResponseEntity<Admin>(HttpStatus.NO_CONTENT);
+        }
     }
 }
