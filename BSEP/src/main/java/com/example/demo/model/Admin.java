@@ -20,12 +20,12 @@ public class Admin {
     private String email;
 
     @Column(name = "Password", nullable = false)
-    private String password;
+    private byte[] password;
 
     @Column(name = "RootCreated", nullable = false)
     private boolean rootCreated=false;
 
-    public Admin(String ime, String prezime, String email, String password) {
+    public Admin(String ime, String prezime, String email, byte[] password) {
         this.ime = ime;
         this.prezime = prezime;
         this.email = email;
@@ -69,11 +69,11 @@ public class Admin {
         this.email = email;
     }
 
-    public String getPassword() {
+    public byte[] getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(byte[] password) {
         this.password = password;
     }
 

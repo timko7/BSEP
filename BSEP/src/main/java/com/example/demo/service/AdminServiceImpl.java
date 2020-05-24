@@ -1,10 +1,7 @@
 package com.example.demo.service;
 
 
-import com.example.demo.model.Admin;
-import com.example.demo.model.AliasCA;
-import com.example.demo.model.IssuerData;
-import com.example.demo.model.SubjectData;
+import com.example.demo.model.*;
 import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.AliasCARepository;
 import com.example.demo.service.*;
@@ -48,12 +45,32 @@ public class AdminServiceImpl implements AdminService {
     public Admin findByEmail(String email) {
         return adminRepository.findByEmail(email);
     }
+    public byte[] hash(String data) {
+        //Kao hes funkcija koristi SHA-256
+        try {
+            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+            byte[] dataHash = sha256.digest(data.getBytes());
+            return dataHash;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     //prilikom registracije admina kreiramo root sertifikat
     @Override
-    public Admin create(Admin admin) throws Exception {
+    public Admin create(KorisnikDTO admin) throws Exception {
+
+        String password=admin.getPassword();
+        byte[] dataHash = hash(password);
         Admin ret = new Admin();
-        ret.copyValues(admin);
+        ret.setPassword(dataHash);
+        ret.setIme(admin.getIme());
+        ret.setPrezime( admin.getPrezime());
+        ret.setEmail(admin.getEmail());
+        ret.setRootCreated(true);
+
+        //ret.copyValues(admin);
         ret = adminRepository.save(ret);
 
 

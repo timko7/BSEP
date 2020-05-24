@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.model.Korisnik;
+import com.example.demo.model.KorisnikDTO;
 
 import java.util.Collection;
 
@@ -12,7 +13,7 @@ public interface KorisnikService {
 
     Korisnik findByEmail(String email);
 
-    Korisnik create(Korisnik korisnik) throws Exception;
+    Korisnik create(KorisnikDTO korisnik) throws Exception;
 
     Korisnik update(Korisnik korisnik) throws Exception;
 

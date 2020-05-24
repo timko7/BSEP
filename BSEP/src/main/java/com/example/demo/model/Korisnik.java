@@ -19,12 +19,12 @@ public class Korisnik {
     private String email;
 
     @Column(name = "Password", nullable = false)
-    private String password;
+    private byte[] password;
 
     public Korisnik() {
     }
 
-    public Korisnik(String ime, String prezime, String email, String password) {
+    public Korisnik(String ime, String prezime, String email, byte[] password) {
         this.ime = ime;
         this.prezime = prezime;
         this.email = email;
@@ -63,11 +63,11 @@ public class Korisnik {
         this.email = email;
     }
 
-    public String getPassword() {
+    public byte[] getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(byte[] password) {
         this.password = password;
     }
 
