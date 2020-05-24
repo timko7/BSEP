@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 
 import com.example.demo.model.Admin;
+import com.example.demo.model.KorisnikDTO;
 import com.example.demo.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,7 @@ public class AdminController {
     }
 
     @RequestMapping(method = POST, value = "/add")
-    public ResponseEntity<?> dodajAdminaKlinike(@RequestBody Admin adminKlinikeRequest) throws Exception {
+    public ResponseEntity<?> dodajAdminaKlinike(@RequestBody KorisnikDTO adminKlinikeRequest) throws Exception {
         Admin exist = adminKlinikeService.findByEmail(adminKlinikeRequest.getEmail());
         if (exist != null) {
             return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
